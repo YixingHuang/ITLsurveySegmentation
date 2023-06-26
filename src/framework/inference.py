@@ -126,6 +126,7 @@ def test_task_joint_model(model_path, dataset_path, task_idx, task_lengths, batc
     dset_classes = dsets['train'].classes
     class_correct = list(0. for i in range(len(dset_classes)))
     class_total = list(0. for i in range(len(dset_classes)))
+    running_corrects = 0
     if init_freeze:
         this_task_class_mask = tasks_idxes
     else:
@@ -142,20 +143,13 @@ def test_task_joint_model(model_path, dataset_path, task_idx, task_lengths, batc
     for data in dset_loaders[subset]:
         images, labels = data
         images = images.cuda()
-        # images = images.squeeze() #cause problems when some batchs have only one image
         labels = labels.cuda()
         outputs = model(Variable(images))
 
-        this_tasks_outputs = outputs.data[:, this_task_class_mask]
-        _, predicted = torch.max(this_tasks_outputs.data, 1)
-        if debug:
-            pdb.set_trace()
-        c = (predicted == labels)#.squeeze() #For Retina, comment out squeeze() because of a single image in a batch
+        preds = torch.round(outputs)
+        running_corrects += dice_coefficient(preds, labels).item()
 
-        for i in range(len(predicted)):
-            label = labels[i]
-            class_correct[label] += float(c[i].item())
-            class_total[label] += 1
+
         del images
         del labels
         del outputs
@@ -167,7 +161,8 @@ def test_task_joint_model(model_path, dataset_path, task_idx, task_lengths, batc
                 dset_classes[i], 100 * class_correct[i] / class_total[i]))
     if debug:
         pdb.set_trace()
-    accuracy = np.sum(class_correct) * 100 / np.sum(class_total)
-    accuracy = accuracy.item()
-    print('Accuracy: ' + str(accuracy) + "  " + str(np.sum(class_correct)) + "  " + str(np.sum(class_total)))
+
+    accuracy = running_corrects / len(dset_loaders[subset].dataset)
+
+    print('Accuracy: ' + str(accuracy) )
     return accuracy

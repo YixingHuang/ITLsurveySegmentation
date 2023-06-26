@@ -133,6 +133,7 @@ def eval_single_model_all_tasks(args, manager, ds_paths):
         # All task results
         for dataset_index in range(args.test_starting_task_count - 1, args.test_max_task_count):
             args.dataset_index = dataset_index
+            print("Testing on dataset: ", dataset_index, ds_paths)
             args.dataset_path = ds_paths[dataset_index]
 
             acc = manager.method.inference_eval(args, manager)  # Eval
