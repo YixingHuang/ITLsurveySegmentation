@@ -1,0 +1,26 @@
+
+*.txt
+*__pycache__
+src/data/datasets/
+src/results/
+src/.idea/
+src/data/__pycache__/
+src/methods/__pycache__/
+src/methods/Finetune/__pycache__/
+src/methods/SI/__pycache__/
+src/methods/MAS/__pycache__/
+src/framework/__pycache__/
+src/data/models/
+src/utilities/imgs/
+src/framework/__pycache__/eval.cpython-37.pyc
+src/runTinyScriptsWin/
+src/runTinyScripts/
+<<<<<<< Updated upstream
+src/runRetinaScriptsWin/
+=======
+src/runRetinaScriptsWin/
+src/runTinyScriptsWin/runCMDs_10Classes.py
+src/runTinyScriptsWin/runCMDs_10Classes.py
+>>>>>>> Stashed changes
+src/runTinyScriptsWinPaper/AdamSWT_N5.py
+src/utilities/imgs/
