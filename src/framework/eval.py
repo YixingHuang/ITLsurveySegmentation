@@ -79,6 +79,7 @@ def eval_single_model_all_tasks(args, manager, ds_paths):
     joint_ds_path = manager.method.grid_datafetch(args, manager.dataset)
     joint_dataloader = None
     joint_class_to_fc_idx = None
+
     if not isinstance(joint_ds_path, list):
         joint_dataset = torch.load(joint_ds_path)
         joint_classes = joint_dataset['train'].classes  # Shouldn't be sorted! (for iNaturalist)

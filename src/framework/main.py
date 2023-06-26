@@ -8,7 +8,7 @@ from collections import OrderedDict
 import framework.lr_grid_train as lr_grid_single_task
 import framework.framework_train as heuristic_single_task
 import framework.eval as test
-
+import copy
 import models.net as nets
 import utilities.utils as utils
 import data.dataset as datasets
@@ -238,6 +238,17 @@ def main(method=None, dataset=None):
     utils.print_stats()
 
     if args.test:
+        print('HYX 777', args.method_name)
+        if args.method_name == 'joint':
+            ds_paths = []
+            args2 = copy.deepcopy(args)
+            args2.method_name = 'SI'
+            for task_counter in range(args.starting_task_count, dataset.task_count + 1):
+                args2.task_counter = task_counter
+                args2.task_name = manager.dataset.get_taskname(args2.task_counter)
+                manager.set_dataset(args2)  # Set current task dataset
+                ds_paths.append(manager.current_task_dataset_path)
+            print('HYX 888', ds_paths)
         test.main(args, manager, ds_paths, model_paths)
 
 

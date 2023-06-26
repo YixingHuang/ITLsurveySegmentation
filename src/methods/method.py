@@ -1381,18 +1381,20 @@ class Joint(Method):
     def grid_datafetch(args, dataset):
         current_task_dataset_path = dataset.get_task_dataset_path(task_name=None, rnd_transform=True)
 
-        # if current_task_dataset_path is not None:  # Available preprocessed JOINT dataset
-        if args.task_name == 'TEST ALL':
-            print("Running JOINT for task ", args.task_name, " on datasets: ", current_task_dataset_path)
-        else:
-            max_task = dataset.task_count  # Include all datasets in the list
-            current_task_dataset_path = [dataset.get_task_dataset_path(
-                task_name=dataset.get_taskname(ds_task_counter), rnd_transform=False)
-                for ds_task_counter in range(1, max_task + 1)]
+        if current_task_dataset_path is not None:  # Available preprocessed JOINT dataset
             print("Running JOINT for all tasks as 1 batch, dataset = ", current_task_dataset_path)
+            return current_task_dataset_path
 
+        # Merge current task dataset with all prev task ones
+        #
+        # max_task = dataset.task_count  # Include all datasets in the list
+        # current_task_dataset_path = [dataset.get_task_dataset_path(
+        #     task_name=dataset.get_taskname(ds_task_counter), rnd_transform=False)
+        #     for ds_task_counter in range(1, max_task + 1)]
+        #
+        # print("Running JOINT for task ", args.task_name, " on datasets: ", current_task_dataset_path)
+        # return current_task_dataset_path
 
-        return current_task_dataset_path
 
     @staticmethod
     def grid_poststep(args, manager):
