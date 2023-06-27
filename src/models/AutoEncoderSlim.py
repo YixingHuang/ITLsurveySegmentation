@@ -4,7 +4,7 @@ See: https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py
 import torch.nn as nn
 import torch
 import torchvision
-from models.unet import UNet
+from models.autoencoder import AutoEncoder
 from collections import OrderedDict
 #############################
 # Static params: Config
@@ -27,9 +27,11 @@ cfg = {
 def block(in_channels, features):
     return [
             nn.Conv2d(in_channels=in_channels, out_channels=features, kernel_size=3, padding=1, bias=False,),
+            nn.BatchNorm2d(num_features=features),
             nn.ReLU(inplace=True),
             nn.Conv2d(in_channels=features, out_channels=features, kernel_size=3, padding=1, bias=False,),
-            nn.BatchNorm2d(num_features=features),nn.ReLU(inplace=True),
+            nn.BatchNorm2d(num_features=features),
+            nn.ReLU(inplace=True),
             ]
 
 class catenate(nn.Module):
@@ -66,7 +68,7 @@ def make_layers(nfilters=32, n_levels=5):
     return nn.Sequential(*layers)
 
 
-class UNetSlim(UNet):
+class AutoEncoderSlim(AutoEncoder):
     """
     Creates VGG feature extractor from config and custom classifier.
     """
@@ -75,18 +77,13 @@ class UNetSlim(UNet):
                  classifier_inputdim=256 * 256, classifier_dim1=512, classifier_dim2=512, batch_norm=False,
                  dropout=False):
         features = make_layers(nfilters=32, n_levels=3)
-        super(UNetSlim, self).__init__(features)
+        super(AutoEncoderSlim, self).__init__(features)
 
         if hasattr(self, 'avgpool'):  # Compat Pytorch>1.0.0
             self.avgpool = torch.nn.Identity()
 
         self.classifier = nn.Sequential(
             nn.Sigmoid()
-            # nn.Linear(classifier_inputdim, classifier_dim1),
-            # nn.ReLU(True),
-            # nn.Linear(classifier_dim1, classifier_dim2),
-            # nn.ReLU(True),
-            # nn.Linear(classifier_dim2, 2),
         )
         # if init_weights:
         #     self._initialize_weights()

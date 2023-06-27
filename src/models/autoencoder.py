@@ -9,7 +9,7 @@ from models.utils import _log_api_usage_once
 #**********************************************************************************************************************
 # Copied from torchvision.models.vgg
 __all__ = [
-    "UNet",
+    "AutoEncoder",
 ]
 
 
@@ -25,14 +25,13 @@ model_urls = {
 }
 
 
-class UNet(nn.Module):
+class AutoEncoder(nn.Module):
     def __init__(
         self, features: nn.Module, num_classes: int = 1000, init_weights: bool = True, dropout: float = 0.5
     ) -> None:
         super().__init__()
         _log_api_usage_once(self)
         self.features = features
-        self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
         self.classifier = nn.Sequential(
             nn.Linear(512 * 7 * 7, 4096),
             nn.ReLU(True),

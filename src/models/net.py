@@ -5,10 +5,10 @@ import torch
 from torchvision import models
 
 import models.VGGSlim as VGGcreator
-import models.UNetSlim as UNetcreator
+import models.AutoEncoderSlim as AutoEncodercreator
 import utilities.utils
 import torch.nn as nn
-
+from models.UNet import UNet
 ########################################
 # PARSING
 ########################################
@@ -200,9 +200,9 @@ class UNetModel(Model):
             raise Exception("MODEL ROOT PATH FOR ", model_name, " DOES NOT EXIST: ", models_root_path)
 
         self.name = model_name
-        self.final_featmap_count = UNetcreator.cfg[vgg_config][-2]
+        self.final_featmap_count = AutoEncodercreator.cfg[vgg_config][-2]
         parent_path = os.path.join(models_root_path,
-                                   "customUNet_input={}x{}".format(str(input_size[0]), str(input_size[1])))
+                                   "UNet_input={}x{}".format(str(input_size[0]), str(input_size[1])))
         self.path = os.path.join(parent_path, self.name + "_" + str(num_classes) + ".pth.tar")
 
         # After classifier name
@@ -222,7 +222,7 @@ class UNetModel(Model):
                                                                             last_featmap_size[1]))
             if create:
                 utilities.utils.create_dir(parent_path)
-                make_UNetmodel(last_featmap_size, vgg_config, self.path, classifier, self.final_featmap_count,
+                make_UNet_model(last_featmap_size, vgg_config, self.path, classifier, self.final_featmap_count,
                               batch_norm, dropout, num_classes)
                 print("CREATED U-Net MODEL:")
                 print(view_saved_model(self.path))
@@ -337,7 +337,7 @@ def make_VGGmodel(last_featmap_size, name, path, classifier, final_featmap_count
 ############################################################
 # FUNCTIONS
 ############################################################
-def make_UNetmodel(last_featmap_size, name, path, classifier, final_featmap_count, batch_norm, dropout, num_classes=10):
+def make_AutoEncoder_model(last_featmap_size, name, path, classifier, final_featmap_count, batch_norm, dropout, num_classes=10):
     """
     Creates custom VGG model with specified classifier array.
 
@@ -349,7 +349,24 @@ def make_UNetmodel(last_featmap_size, name, path, classifier, final_featmap_coun
     :return:
     """
     # Create and save the model in data root path
-    model = UNetcreator.UNetSlim(config=name, num_classes=num_classes)
+    model = AutoEncodercreator.AutoEncoderSlim(config=name, num_classes=num_classes)
+    torch.save(model, path)
+    print("SAVED NEW MODEL (name=", name, ", classifier=", classifier, ") to ", path)
+
+
+def make_UNet_model(last_featmap_size, name, path, classifier, final_featmap_count, batch_norm, dropout, num_classes=10):
+    """
+    Creates custom VGG model with specified classifier array.
+
+    :param last_featmap_size: (w , h ) tupple showing last feature map size.
+    :param name: custom VGG config name for feature extraction
+    :param path:
+    :param classifier: array of length 2, with sizes of 2 FC layers
+    :param final_featmap_count: amount of feat maps in the last non-pooling layer. Used to calc classifier input.
+    :return:
+    """
+    # Create and save the model in data root path
+    model = UNet(1, 1, init_features=8)
     torch.save(model, path)
     print("SAVED NEW MODEL (name=", name, ", classifier=", classifier, ") to ", path)
 
