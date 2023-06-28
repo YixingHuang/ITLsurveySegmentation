@@ -61,7 +61,9 @@ class UNet(nn.Module):
         self.conv = nn.Conv2d(
             in_channels=features, out_channels=out_channels, kernel_size=1
         )
-
+        self.classifier = nn.Sequential(
+            nn.Sigmoid()
+        )
     def forward(self, x):
         enc1 = self.encoder1(x)
         enc2 = self.encoder2(self.pool1(enc1))
@@ -82,7 +84,7 @@ class UNet(nn.Module):
         dec1 = self.upconv1(dec2)
         dec1 = torch.cat((dec1, enc1), dim=1)
         dec1 = self.decoder1(dec1)
-        return torch.sigmoid(self.conv(dec1))
+        return self.classifier(self.conv(dec1))
 
     @staticmethod
     def _block(in_channels, features, name):

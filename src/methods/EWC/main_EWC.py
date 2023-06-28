@@ -26,20 +26,20 @@ def fine_tune_EWC_acuumelation(dataset_path, previous_task_model_path, exp_dir, 
     """
 
     dsets = torch.load(dataset_path)
-    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
-    #                                                shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
-    #                 for x in ['train', 'val']}
-    sampler = {}
-    for x in ['train', 'val']:
-        class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
-        weights = 1 / torch.Tensor(class_sample_count)
-        samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
-
-        sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
-
-    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
-                                                   shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
+                                                   shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
                     for x in ['train', 'val']}
+    # sampler = {}
+    # for x in ['train', 'val']:
+    #     class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
+    #     weights = 1 / torch.Tensor(class_sample_count)
+    #     samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
+    #
+    #     sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
+    #
+    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
+    #                                                shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    #                 for x in ['train', 'val']}
     dset_sizes = {x: len(dsets[x]) for x in ['train', 'val']}
     dset_classes = dsets['train'].classes
 
@@ -169,7 +169,15 @@ def diag_fisher(model, dset_loader, data_len):
         x, label = Variable(x).cuda(), Variable(label, requires_grad=False).cuda()
 
         output = model(x)
-        loss = torch.nn.functional.nll_loss(torch.nn.functional.log_softmax(output, dim=1), label, size_average=False)
+        # print(label.size(), torch.nn.functional.log_softmax(output, dim=1).size())
+        # loss = torch.nn.functional.nll_loss(torch.nn.functional.log_softmax(output, dim=1), label, size_average=False)
+        output = torch.cat((1 - output, output), dim=1) # convert to binary classification suitable for softmax loss
+        # label = torch.cat((label, 1 - label), dim=1) # convert to binary classification suitable for softmax loss
+        label = label.squeeze(dim=1).long()
+        intermediate = torch.nn.functional.log_softmax(output, dim=1)
+
+        loss = torch.nn.functional.nll_loss(intermediate,
+                                            label, size_average=False)
         loss.backward()
 
         for n, p in model.named_parameters():

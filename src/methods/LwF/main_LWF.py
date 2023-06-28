@@ -284,20 +284,20 @@ def fine_tune_LwF_main(dataset_path, previous_task_model_path, init_model_path='
     print('lr is ' + str(lr))
 
     dsets = torch.load(dataset_path)
-    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
-    #                                                shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
-    #                 for x in ['train', 'val']}
-    sampler = {}
-    for x in ['train', 'val']:
-        class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
-        weights = 1 / torch.Tensor(class_sample_count)
-        samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
-
-        sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
-
-    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
-                                                   shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
+                                                   shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
                     for x in ['train', 'val']}
+    # sampler = {}
+    # for x in ['train', 'val']:
+    #     class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
+    #     weights = 1 / torch.Tensor(class_sample_count)
+    #     samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
+    #
+    #     sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
+    #
+    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
+    #                                                shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    #                 for x in ['train', 'val']}
     dset_sizes = {x: len(dsets[x]) for x in ['train', 'val']}
     dset_classes = dsets['train'].classes
 
@@ -323,15 +323,15 @@ def fine_tune_LwF_main(dataset_path, previous_task_model_path, init_model_path='
         if not (type(model_ft) is AlexNet_LwF):
             last_layer_index = (len(model_ft.classifier._modules) - 1)
             model_ft = AlexNet_LwF(model_ft, last_layer_name=last_layer_index)
-            num_ftrs = model_ft.model.classifier[last_layer_index].in_features
-            model_ft.num_ftrs = num_ftrs
+            # num_ftrs = model_ft.model.classifier[last_layer_index].in_features
+            # model_ft.num_ftrs = num_ftrs
 
         original_model = copy.deepcopy(model_ft)
         #
-        if not init_freeze:
-
-            model_ft.model.classifier.add_module(str(len(model_ft.model.classifier._modules)),
-                                                 nn.Linear(model_ft.num_ftrs, len(dset_classes)))
+        # if not init_freeze:
+        #
+        #     model_ft.model.classifier.add_module(str(len(model_ft.model.classifier._modules)),
+        #                                          nn.Linear(model_ft.num_ftrs, len(dset_classes)))
         # else:
         #     print(init_model_path)
         #     init_model = torch.load(init_model_path)
