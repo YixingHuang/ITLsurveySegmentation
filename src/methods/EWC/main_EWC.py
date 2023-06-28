@@ -169,15 +169,11 @@ def diag_fisher(model, dset_loader, data_len):
         x, label = Variable(x).cuda(), Variable(label, requires_grad=False).cuda()
 
         output = model(x)
-        # print(label.size(), torch.nn.functional.log_softmax(output, dim=1).size())
+
         # loss = torch.nn.functional.nll_loss(torch.nn.functional.log_softmax(output, dim=1), label, size_average=False)
         output = torch.cat((1 - output, output), dim=1) # convert to binary classification suitable for softmax loss
-        # label = torch.cat((label, 1 - label), dim=1) # convert to binary classification suitable for softmax loss
-        label = label.squeeze(dim=1).long()
-        intermediate = torch.nn.functional.log_softmax(output, dim=1)
-
-        loss = torch.nn.functional.nll_loss(intermediate,
-                                            label, size_average=False)
+        label = label.squeeze(dim=1).long() #Class indices are integers, hence the target tensor should be of type Long
+        loss = torch.nn.functional.nll_loss(torch.nn.functional.log_softmax(output, dim=1), label, size_average=False)
         loss.backward()
 
         for n, p in model.named_parameters():

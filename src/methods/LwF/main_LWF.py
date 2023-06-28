@@ -12,7 +12,7 @@ from methods.LwF.AlexNet_LwF import AlexNet_LwF
 import methods.Finetune.train_SGD as SGD_Training
 import utilities.utils as utils
 from methods.loss import DiceLoss
-
+from utilities.utils import dice_coefficient
 def exp_lr_scheduler(optimizer, epoch, init_lr=0.0008, lr_decay_epoch=45):
     """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
     lr = init_lr * (0.1 ** (epoch // lr_decay_epoch))
@@ -74,6 +74,30 @@ def distillation_loss(y, teacher_scores, T, scale):
     loss = loss / teacher_scores.size(0)
     return loss
 
+# DSL loss for segmentation, HYX
+def knowledge_distillation_loss(student_output, teacher_output, temperature):
+    # y is the ground truth segmentation map
+    # teacher_output and student_output are the output from the teacher and student models
+    # alpha is the weight for the distillation loss
+    # temperature is the temperature parameter for the distillation
+
+    # Normalize the student's logits
+    student_output -= student_output.max(dim=1, keepdim=True)[0]
+
+    # Normalize the teacher's logits
+    teacher_output -= teacher_output.max(dim=1, keepdim=True)[0]
+    # Calculate the hard target loss (with ground truth labels)
+    # hard_loss = F.cross_entropy(student_output, y)
+
+    # Calculate the soft target loss (with teacher's outputs)
+    # We use the Kullback-Leibler Divergence loss (KLDivLoss)
+    # Note: the teacher's output is detached as we don't want to backpropagate through it
+    soft_loss = F.kl_div(F.log_softmax(student_output/temperature, dim=1),
+                         F.softmax(teacher_output.detach()/temperature, dim=1),
+                         reduction='batchmean')
+
+    # return (1 - alpha) * hard_loss + (alpha * temperature * temperature) * soft_loss
+    return soft_loss
 
 def set_lr(optimizer, lr, count):
     """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
@@ -190,23 +214,29 @@ def train_model_lwf(model, original_model, criterion, optimizer, lr, dset_loader
                 # forward
                 # tasks_outputs and target_logits are lists of outputs for each task in the previous model and current model
                 orginal_logits = original_model(original_inputs)
+                orginal_logits = torch.cat((1 - orginal_logits, orginal_logits), dim=1) # convert to softmax  HYX
                 # Move to same GPU as current model.
-                target_logits = [Variable(item.data, requires_grad=False)
-                                 for item in orginal_logits]
-                del orginal_logits
-                scale = [item.size(-1) for item in target_logits]
-                tasks_outputs = model(inputs)
-                _, preds = torch.max(tasks_outputs[-1].data, 1)
+
+                # target_logits = [Variable(item.data, requires_grad=False)
+                #                  for item in orginal_logits]
+                # print('orginal_logits', orginal_logits.size(), 'target_logits', len(target_logits))
+                # del orginal_logits
+                # scale = [item.size(-1) for item in target_logits]
+                outputs = model(inputs)
+                tasks_outputs = torch.cat((1 - outputs, outputs), dim=1) # convert to softmax HYX
+                # _, preds = torch.max(tasks_outputs[-1].data, 1)
+                preds = torch.round(outputs) # HYX
                 task_loss = criterion(tasks_outputs[-1], labels)
 
                 # Compute distillation loss.
                 dist_loss = 0
                 # Apply distillation loss to all old tasks.
                 if phase == 'train':
-                    for idx in range(len(target_logits)):
-                        dist_loss += distillation_loss(tasks_outputs[idx], target_logits[idx], temperature, scale[idx])
+                    # for idx in range(len(target_logits)):
+                        # dist_loss += distillation_loss(tasks_outputs[idx], target_logits[idx], temperature, scale[idx])
+                    dist_loss += knowledge_distillation_loss(tasks_outputs, orginal_logits, temperature)
                     # backward + optimize only if in training phase
-
+                del orginal_logits
                 total_loss = reg_lambda * dist_loss + task_loss
                 preprocessing_time += time.time() - start_preprocess_time
 
@@ -220,7 +250,9 @@ def train_model_lwf(model, original_model, criterion, optimizer, lr, dset_loader
 
                 # statistics
                 running_loss += task_loss.data.item()
-                running_corrects += torch.sum(preds == labels.data).item()
+                # running_corrects += torch.sum(preds == labels.data).item()
+                # print(preds.size(), labels.data.size())
+                running_corrects += dice_coefficient(preds.data, labels.data)
 
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]
@@ -309,8 +341,6 @@ def fine_tune_LwF_main(dataset_path, previous_task_model_path, init_model_path='
         checkpoint = torch.load(resume)
         model_ft = checkpoint['model']
         previous_model = torch.load(previous_task_model_path)
-        if not (type(previous_model) is AlexNet_LwF):
-            previous_model = AlexNet_LwF(previous_model, last_layer_name=last_layer_name)
         original_model = copy.deepcopy(previous_model)
         del checkpoint
         del previous_model
@@ -320,23 +350,8 @@ def fine_tune_LwF_main(dataset_path, previous_task_model_path, init_model_path='
         if 'best_model.pth.tar' in previous_task_model_path:
             previous_model_path = previous_task_model_path.replace('best_model.pth.tar', 'epoch.pth.tar')
 
-        if not (type(model_ft) is AlexNet_LwF):
-            last_layer_index = (len(model_ft.classifier._modules) - 1)
-            model_ft = AlexNet_LwF(model_ft, last_layer_name=last_layer_index)
-            # num_ftrs = model_ft.model.classifier[last_layer_index].in_features
-            # model_ft.num_ftrs = num_ftrs
-
         original_model = copy.deepcopy(model_ft)
-        #
-        # if not init_freeze:
-        #
-        #     model_ft.model.classifier.add_module(str(len(model_ft.model.classifier._modules)),
-        #                                          nn.Linear(model_ft.num_ftrs, len(dset_classes)))
-        # else:
-        #     print(init_model_path)
-        #     init_model = torch.load(init_model_path)
-        #     model_ft.model.classifier.add_module(str(len(model_ft.model.classifier._modules)),
-        #                                          init_model.classifier[6])
+
         #     del init_model
             # do something else
         if not os.path.exists(exp_dir):

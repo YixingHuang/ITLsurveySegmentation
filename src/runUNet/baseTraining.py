@@ -15,8 +15,14 @@ cmd5 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training
 
 cmd6 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training --method_name   EWC --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
+cmd7 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training --method_name   LWF --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
-cmds = [cmd6]
+cmd8 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training2 --method_name   LWF --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
+
+cmd9 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training2 --method_name   MAS --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
+
+
+cmds = [cmd8]
 for cmd in cmds:
     os.system(cmd)
 

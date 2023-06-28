@@ -238,7 +238,6 @@ def main(method=None, dataset=None):
     utils.print_stats()
 
     if args.test:
-        print('HYX 777', args.method_name)
         if args.method_name == 'joint':
             ds_paths = []
             args2 = copy.deepcopy(args)
