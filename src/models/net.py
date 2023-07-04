@@ -23,6 +23,8 @@ def parse_model_name(models_root_path, model_name, input_size, num_classes):
     pretrained = "pretrained" in model_name
     if 'UNet' in model_name:
         base_model = SmallUNet(models_root_path, input_size, model_name, create=True, num_classes=num_classes)
+    elif 'AutoEncoder' in model_name:
+        base_model = SmallAutoEncoder(models_root_path, input_size, model_name, create=True, num_classes=num_classes)
     elif "alexnet" in model_name:
         base_model = AlexNet(models_root_path, pretrained=pretrained, create=True)
     elif SmallVGG9.vgg_config in model_name:
@@ -200,9 +202,75 @@ class UNetModel(Model):
             raise Exception("MODEL ROOT PATH FOR ", model_name, " DOES NOT EXIST: ", models_root_path)
 
         self.name = model_name
-        self.final_featmap_count = AutoEncodercreator.cfg[vgg_config][-2]
+        # self.final_featmap_count = AutoEncodercreator.cfg[vgg_config][-2]
         parent_path = os.path.join(models_root_path,
                                    "UNet_input={}x{}".format(str(input_size[0]), str(input_size[1])))
+        self.path = os.path.join(parent_path, self.name + "_" + str(num_classes) + ".pth.tar")
+
+        # After classifier name
+        dropout = ModelRegularization.dropout in model_name.split("_")
+        batch_norm = ModelRegularization.batchnorm in model_name.split("_")
+
+        if dropout:
+            self.last_layer_idx = 6
+
+        if overwrite_mode or not os.path.exists(self.path):
+            classifier = parse_classifier_name(model_name)
+
+            last_featmap_size = (
+                int(input_size[0] / 2 ** self.pooling_layers), int(input_size[1] / 2 ** self.pooling_layers))
+            # print("CREATING MODEL, with FC classifier size {}*{}*{}".format(self.final_featmap_count,
+            #                                                                 last_featmap_size[0],
+            #                                                                 last_featmap_size[1]))
+            if create:
+                utilities.utils.create_dir(parent_path)
+                make_UNet_model(last_featmap_size, vgg_config, self.path, classifier, 0,
+                              batch_norm, dropout, num_classes)
+                print("CREATED U-Net MODEL:")
+                print(view_saved_model(self.path))
+            else:
+                # raise Exception("Not creating non-existing model: ", self.name)
+                print("Not creating non-existing model: ", self.name)
+        else:
+            print("MODEL ", model_name, " already exist in path = ", self.path)
+
+    def name(self):
+        return self.name
+
+    def path(self):
+        return self.path
+
+
+class SmallUNet(UNetModel):
+    vgg_config = "UNet"
+    def_classifier_suffix = "_cl_128_128"
+
+    def __init__(self, models_root_path, input_size, model_name=(vgg_config + def_classifier_suffix),
+                 overwrite_mode=False, create=False, num_classes=10):
+        """
+        :param model_name: defined in main script, e.g. small_VGG9_cl_128_128
+        :param overwrite_mode: Overwrite if model already exists
+        """
+        super().__init__(models_root_path, input_size, model_name, vgg_config=self.vgg_config,
+                         overwrite_mode=overwrite_mode, create=create, num_classes=num_classes)
+
+
+class AutoEncoderModel(Model):
+    """
+    VGG based models.
+    base_vgg9_cl_512_512_DROP_BN
+    """
+    last_layer_idx = 4  # vgg_classifier_last_layer_idx
+    pooling_layers = 4  # in all our models 4 max pooling layers with stride 2
+
+    def __init__(self, models_root_path, input_size, model_name, vgg_config, overwrite_mode=False, create=False, num_classes=10):
+        if not os.path.exists(os.path.dirname(models_root_path)):
+            raise Exception("MODEL ROOT PATH FOR ", model_name, " DOES NOT EXIST: ", models_root_path)
+
+        self.name = model_name
+        self.final_featmap_count = AutoEncodercreator.cfg[vgg_config][-2]
+        parent_path = os.path.join(models_root_path,
+                                   "AutoEncoder={}x{}".format(str(input_size[0]), str(input_size[1])))
         self.path = os.path.join(parent_path, self.name + "_" + str(num_classes) + ".pth.tar")
 
         # After classifier name
@@ -222,7 +290,7 @@ class UNetModel(Model):
                                                                             last_featmap_size[1]))
             if create:
                 utilities.utils.create_dir(parent_path)
-                make_UNet_model(last_featmap_size, vgg_config, self.path, classifier, self.final_featmap_count,
+                make_AutoEncoder_model(last_featmap_size, vgg_config, self.path, classifier, self.final_featmap_count,
                               batch_norm, dropout, num_classes)
                 print("CREATED U-Net MODEL:")
                 print(view_saved_model(self.path))
@@ -239,7 +307,7 @@ class UNetModel(Model):
         return self.path
 
 
-class SmallUNet(UNetModel):
+class SmallAutoEncoder(AutoEncoderModel):
     vgg_config = "small_UNet"
     def_classifier_suffix = "_cl_128_128"
 
@@ -366,7 +434,7 @@ def make_UNet_model(last_featmap_size, name, path, classifier, final_featmap_cou
     :return:
     """
     # Create and save the model in data root path
-    model = UNet(1, 1, init_features=8)
+    model = UNet(1, 1, init_filters=8)
     torch.save(model, path)
     print("SAVED NEW MODEL (name=", name, ", classifier=", classifier, ") to ", path)
 

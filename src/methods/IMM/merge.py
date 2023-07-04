@@ -177,9 +177,16 @@ def diag_fisher(model, dataset, exclude_params=None):
             x, label = input
             x, label = Variable(x).cuda(), Variable(label, requires_grad=False).cuda()
             output = model(x)
-            temp = F.softmax(output).data
+            output = torch.cat((1 - output, output),dim=1)  # convert to binary classification suitable for softmax loss
 
+            temp = F.softmax(output).data
+            shape = temp.shape
+            temp = temp.permute(0, 2, 3, 1)
+            temp = temp.contiguous().view(-1, shape[1])
             targets = Variable(torch.multinomial(temp, 1).clone().squeeze(dim=1)).cuda()
+            targets = targets.reshape(shape[0], shape[2], shape[3])
+            # targets = label.squeeze(dim=1).long()
+
             loss = F.nll_loss(F.log_softmax(output, dim=1), targets, size_average=True)
             loss.backward()
 

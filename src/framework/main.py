@@ -247,7 +247,6 @@ def main(method=None, dataset=None):
                 args2.task_name = manager.dataset.get_taskname(args2.task_counter)
                 manager.set_dataset(args2)  # Set current task dataset
                 ds_paths.append(manager.current_task_dataset_path)
-            print('HYX 888', ds_paths)
         test.main(args, manager, ds_paths, model_paths)
 
 

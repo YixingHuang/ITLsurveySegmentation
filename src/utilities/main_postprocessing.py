@@ -135,8 +135,8 @@ class ExperimentDataEntry(object):
             return cmap(step * 10)
 
         # Mask
-        elif method.name == PackNet.name:
-            return cmap(step * 4)
+        # elif method.name == PackNet.name:
+        #     return cmap(step * 4)
         elif method.name == FineTuning.name:
             return 'black'
         elif method.name == IsolatedTraining.name:
@@ -258,6 +258,7 @@ def collect_gridsearch_exp_entries(test_results_root_path, tr_results_root_path,
         assert task_agnostic_mode, 'Can only plot between-head acc if in task_agnostic mode'
 
     model_name = model.name
+
     exp_results_parent_dir = utils.get_test_results_path(test_results_root_path, dataset, method.eval_name,
                                                          model_name, gridsearch_name, subset=subset)
     # Experiments to analyse

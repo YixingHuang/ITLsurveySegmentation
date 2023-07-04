@@ -1184,6 +1184,16 @@ class Finetune(Method):
                                      freq=args.saving_freq,
                                      optimizer=args.optimizer
                                      )
+        # return trainSI.fine_tune_elastic(dataset_path=manager.current_task_dataset_path,
+        #                           num_epochs=args.num_epochs,
+        #                           exp_dir=manager.gridsearch_exp_dir,
+        #                           model_path=manager.previous_task_model_path,
+        #                           reg_lambda=0,
+        #                           batch_size=args.batch_size, lr=lr, init_freeze=args.init_freeze,
+        #                           weight_decay=args.weight_decay,
+        #                           saving_freq=args.saving_freq,
+        #                           optimizer=args.optimizer,
+        #                           reload_optimizer=args.reload_optimizer)
 
     @staticmethod
     def grid_poststep(args, manager):
@@ -1368,7 +1378,7 @@ class Joint(Method):
     hyperparams = {}
     grid_chkpt = True
     start_scratch = True
-    no_framework = True
+    # no_framework = True
 
     def get_output(self, images, args):
         raise NotImplementedError("JOINT has custom testing method for shared head.")
@@ -1377,6 +1387,17 @@ class Joint(Method):
     def grid_train(args, manager, lr):
         return Finetune.grid_train(args, manager, lr)
 
+    def train(self, args, manager, hyperparams):
+        return trainSI.fine_tune_elastic(dataset_path=manager.current_task_dataset_path,
+                                         num_epochs=args.num_epochs,
+                                         exp_dir=manager.heuristic_exp_dir,
+                                         model_path=manager.previous_task_model_path,
+                                         reg_lambda=0,
+                                         batch_size=args.batch_size, lr=args.lr, init_freeze=args.init_freeze,
+                                         weight_decay=args.weight_decay,
+                                         saving_freq=args.saving_freq,
+                                         optimizer=args.optimizer,
+                                         reload_optimizer=args.reload_optimizer)
     @staticmethod
     def grid_datafetch(args, dataset):
         current_task_dataset_path = dataset.get_task_dataset_path(task_name=None, rnd_transform=True)

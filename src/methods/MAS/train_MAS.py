@@ -732,7 +732,7 @@ def compute_importance(model, optimizer, lr_scheduler, dset_loaders, use_gpu):
 
             targets.backward()
 
-            print('batch number ', index)
+            # print('batch number ', index)
             optimizer.step(model.reg_params, index, labels.size(0))
             index += 1
 
@@ -798,7 +798,7 @@ def compute_importance_l2(model, optimizer, lr_scheduler, dset_loaders, use_gpu)
             # print('step')
 
             optimizer.step(model.reg_params, index, labels.size(0))
-            print('batch number ', index)
+            # print('batch number ', index)
             index += 1
 
     return model
@@ -858,7 +858,7 @@ def compute_importance_l2_sparce(model, optimizer, lr_scheduler, dset_loaders, u
             targets.backward()
             # print('step')
             optimizer.step(model.reg_params, index, labels.size(0))
-            print('batch number ', index)
+            # print('batch number ', index)
             index += 1
 
     return model
@@ -922,7 +922,7 @@ def compute_importance_gradient_vector(model, optimizer, lr_scheduler, dset_load
 
             # print('step')
             optimizer.step(model.reg_params, False, index, labels.size(0))
-            print('batch number ', index)
+            # print('batch number ', index)
             index += 1
 
     return model

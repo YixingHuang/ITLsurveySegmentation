@@ -436,20 +436,20 @@ def fine_tune_Adam_Autoencoder(dataset_path, previous_task_model_path, exp_dir='
     print('lr is ' + str(lr))
 
     dsets = torch.load(dataset_path)
-    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
-    #                                                shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
-    #                 for x in ['train', 'val']}
-    sampler = {}
-    for x in ['train', 'val']:
-        class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
-        weights = 1 / torch.Tensor(class_sample_count)
-        samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
-
-        sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
-
-    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
-                                                   shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size=batch_size,
+                                                   shuffle=True, num_workers=8, pin_memory=True, drop_last=True)
                     for x in ['train', 'val']}
+    # sampler = {}
+    # for x in ['train', 'val']:
+    #     class_sample_count = [len([idx for idx in range(len(dsets[x])) if dsets[x][idx][1] == t]) for t in range(2)]
+    #     weights = 1 / torch.Tensor(class_sample_count)
+    #     samples_weight = torch.tensor([weights[t] for _, t in dsets[x]])
+    #
+    #     sampler[x] = torch.utils.data.WeightedRandomSampler(samples_weight, len(samples_weight))
+    #
+    # dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], sampler=sampler[x], batch_size=batch_size,
+    #                                                shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    #                 for x in ['train', 'val']}
     dset_sizes = {x: len(dsets[x]) for x in ['train', 'val']}
 
     use_gpu = torch.cuda.is_available()
@@ -463,10 +463,10 @@ def fine_tune_Adam_Autoencoder(dataset_path, previous_task_model_path, exp_dir='
         model_ft = torch.load(previous_task_model_path)
 
         # No dropout layers please
-        first_FC_layer = utils.get_first_FC_layer(model_ft.classifier)
-        num_ftrs = first_FC_layer.in_features
-        print("Starting from model with feat input dim of classifier: ", num_ftrs)
-
+        # first_FC_layer = utils.get_first_FC_layer(model_ft.classifier)
+        # num_ftrs = first_FC_layer.in_features
+        # print("Starting from model with feat input dim of classifier: ", num_ftrs)
+        num_ftrs = 128 # HYX hardcoded
         if hasattr(model_ft, 'reg_params'):
             model_ft.reg_params = None
 
