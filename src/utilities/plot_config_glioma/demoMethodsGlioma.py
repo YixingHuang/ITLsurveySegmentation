@@ -31,7 +31,7 @@ exp_name_contains = None
 # INIT
 method_names = []
 method_data_entries = []
-gridsearch_name = "GliomaSWT_run11"
+gridsearch_name = "GliomaSWT_few1"
 #############################################
 methods = [Joint(),  FineTuning(), SI(), IsolatedTraining(), EWC(), MAS(), LWF(), IMM('mean'), IMM('mode')]
 

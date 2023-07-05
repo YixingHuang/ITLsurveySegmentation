@@ -67,7 +67,8 @@ class Elastic_SGD(optim.SGD):
                 w = w.cuda()
                 omega = omega.cuda()
                 # get the difference
-                weight_dif = curr_wegiht_val.add(-1, init_val)
+                # weight_dif = curr_wegiht_val.add(-1, init_val)
+                weight_dif = curr_wegiht_val.add(init_val, -1)
 
                 regulizer = torch.mul(weight_dif, 2 * reg_lambda * omega)
 
@@ -759,7 +760,8 @@ def update_reg_params(model, slak=1e-3):
             omega = omega.cuda()
             init_val = reg_param.get('init_val')
             init_val = init_val.cuda()
-            path_diff = param.data.add(-1, init_val)
+            # path_diff = param.data.add(-1, init_val)
+            path_diff = param.data.add(init_val, -1)
             if path_diff.equal(zero.cuda()):
                 print('PATH DIFF WRONG WARNING')
             dominator = path_diff.pow(2)
@@ -825,7 +827,8 @@ def update_reg_params(model, slak=1e-3):
             omega = omega.cuda()
             init_val = reg_param.get('init_val')
             init_val = init_val.cuda()
-            path_diff = param.data.add(-1, init_val)
+            # path_diff = param.data.add(-1, init_val)
+            path_diff = param.data.add(init_val, -1)
             if path_diff.equal(zero.cuda()):
                 print('PATH DIFF WRONG WARNING')
             dominator = path_diff.pow(2)
