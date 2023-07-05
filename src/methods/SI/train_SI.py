@@ -171,7 +171,8 @@ class Elastic_RmsPropOptimizer(optim.RMSprop):
                 w = w.cuda()
                 omega = omega.cuda()
                 # get the difference
-                weight_dif = curr_wegiht_val.add(-1, init_val)
+                # weight_dif = curr_wegiht_val.add(-1, init_val)
+                weight_dif = curr_wegiht_val.add(init_val, -1)
 
                 regulizer = torch.mul(weight_dif, 2 * reg_lambda * omega)
                 # print("HYX, regularizer sum: index ", index,
