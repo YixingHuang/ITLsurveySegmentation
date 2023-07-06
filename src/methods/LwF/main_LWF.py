@@ -252,7 +252,9 @@ def train_model_lwf(model, original_model, criterion, optimizer, lr, dset_loader
                 running_loss += task_loss.data.item()
                 # running_corrects += torch.sum(preds == labels.data).item()
                 # print(preds.size(), labels.data.size())
-                running_corrects += dice_coefficient(preds.data, labels.data)
+
+                with torch.no_grad():
+                    running_corrects += dice_coefficient(preds, labels).item()
 
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]

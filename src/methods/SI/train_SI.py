@@ -659,7 +659,9 @@ def train_model(model, criterion, optimizer, lr, dset_loaders, dset_sizes, use_g
 
                 running_loss += loss.data.item()
                 # running_corrects += torch.sum(preds == labels.data).item()
-                running_corrects += dice_coefficient(preds, labels.data)
+
+                with torch.no_grad():
+                    running_corrects += dice_coefficient(preds, labels).item()
 
             epoch_loss = running_loss / dset_sizes[phase]
 
@@ -693,7 +695,7 @@ def train_model(model, criterion, optimizer, lr, dset_loaders, dset_sizes, use_g
                         'lr': lr,
                         'val_beat_counts': val_beat_counts,
                         'arch': 'alexnet',
-                        # 'model': model,
+                        'model': model,
                         'state_dict': model.state_dict(),
                         'optimizer': optimizer.state_dict(),
                     }, epoch_file_name)

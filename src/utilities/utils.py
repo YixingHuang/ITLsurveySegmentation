@@ -416,4 +416,5 @@ def dice_coefficient(pred, target, epsilon=1):
     union = torch.sum(pred, dim=dims) + torch.sum(target, dim=dims)
     dice = (2. * intersection + epsilon) / (union + epsilon)
     dice = torch.sum(dice)
+
     return dice

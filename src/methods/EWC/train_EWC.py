@@ -354,7 +354,9 @@ def train_model(model, criterion, optimizer, lr, dset_loaders, dset_sizes, use_g
                 # statistics
                 running_loss += loss.data.item()
                 # running_corrects += torch.sum(preds == labels.data).item()
-                running_corrects += dice_coefficient(preds, labels.data)
+
+                with torch.no_grad():
+                    running_corrects += dice_coefficient(preds, labels).item()
 
             epoch_loss = running_loss / dset_sizes[phase]
             epoch_acc = running_corrects / dset_sizes[phase]

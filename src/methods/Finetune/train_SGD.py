@@ -149,7 +149,8 @@ def train_model(model, criterion, optimizer, lr, dset_loaders, dset_sizes, use_g
                 # running statistics
                 running_loss += loss.data.item()
 
-                running_corrects += dice_coefficient(preds, labels.data)
+                with torch.no_grad():
+                    running_corrects += dice_coefficient(preds, labels).item()
                 # running_corrects += torch.sum(preds == labels.data)/labels.data.numel()
 
                 if i + 1 % print_freq == 0:
