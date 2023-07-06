@@ -828,8 +828,8 @@ def update_reg_params(model, slak=1e-3):
             omega = omega.cuda()
             init_val = reg_param.get('init_val')
             init_val = init_val.cuda()
-            # path_diff = param.data.add(-1, init_val)
-            path_diff = param.data.add(init_val, -1)
+            path_diff = param.data.add(-1, init_val)
+            # path_diff = param.data.add(init_val, -1)
             if path_diff.equal(zero.cuda()):
                 print('PATH DIFF WRONG WARNING')
             dominator = path_diff.pow(2)
