@@ -60,8 +60,8 @@ class Weight_Regularized_SGD(optim.SGD):
                     omega = omega.cuda()
 
                     # get the difference
-                    # weight_dif = curr_wegiht_val.add(-1, init_val)  # compute the difference between theta and theta*,
-                    weight_dif = curr_wegiht_val.add(init_val, -1)
+                    weight_dif = curr_wegiht_val.add(-1, init_val)  # compute the difference between theta and theta*,
+                    # weight_dif = curr_wegiht_val.add(init_val, -1)
 
                     regulizer = weight_dif.mul(2 * reg_lambda * omega)  # the gradient of the EWC penalty
                     d_p.add_(regulizer)  # add the gradient of the penalty
@@ -138,8 +138,8 @@ class Weight_Regularized_Adam(optim.Adam):
                     curr_wegiht_val = p.data.clone()
                     init_val = init_val.cuda()
                     omega = omega.cuda()
-                    # weight_dif = curr_wegiht_val.add(-1, init_val)
-                    weight_dif = curr_wegiht_val.add(init_val, -1)
+                    weight_dif = curr_wegiht_val.add(-1, init_val)
+                    # weight_dif = curr_wegiht_val.add(init_val, -1)
                     regulizer = torch.mul(weight_dif, 2 * reg_lambda * omega)
                     #
                     # print("HYX, gradient sum before operation:", torch.sum(p.grad.data.clone()).item(), index)
