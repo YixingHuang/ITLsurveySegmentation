@@ -7,7 +7,7 @@ cmd1 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training
 
 cmd2 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name unet_training --method_name  joint  --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 50 --n_iters 1  --first_task_basemodel_folder first_task_glioma --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
-cmd3 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training --method_name  FT  --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
+cmd3 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training2 --method_name  FT  --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
 cmd4 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training --method_name  SI  --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
@@ -27,7 +27,7 @@ cmd11 = 'py ../framework/main.py AutoEncoder_cl_128_128  --gridsearch_name base_
 
 cmd12 = 'py ../framework/main.py UNet_cl_128_128  --gridsearch_name base_training --method_name   modeIMM  --ds_name glioma  --n_tasks  4 --test  --test_overwrite_mode --num_epochs 10 --n_iters 1  --first_task_basemodel_folder first_task_glioma_unet --fixed_init_lr 0.001 --num_class 2  --batch_size 4 --lr_grid 1e-3  --no_maximal_plasticity_search'
 
-cmds = [cmd2]
+cmds = [cmd3]
 for cmd in cmds:
     os.system(cmd)
 

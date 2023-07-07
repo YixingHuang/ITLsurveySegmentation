@@ -412,7 +412,7 @@ def debug_add_sys_args(string_cmd, set_debug_option=True):
 
 
 def merge_individual_centers(img_paths_centers, center_count):
-    subsets = ['train', 'val']
+    subsets = ['train', 'val', 'test']
     img_paths = {t: {s: [] for s in subsets + ['classes', 'class_to_idx']} for t in range(1, 2)}
     for subset in subsets:
         for center_id in range(1, center_count + 1):

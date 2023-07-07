@@ -77,7 +77,7 @@ def divide_into_centers(root_path, center_count=10, num_classes=2, min_num=50, m
     #
     classes = ('background', 'glioma')
     class_to_idx = {classes[i]: i for i in range(len(classes))}
-    subsets = ['train', 'val']
+    subsets = ['train', 'val', 'test']
     seg_preffix = '_seg.png'
     t1ce_preffix = '_t1ce.png'
     img_paths = {t: {s: [] for s in subsets + ['classes', 'class_to_idx']} for t in range(1, center_count + 1)}
@@ -112,7 +112,6 @@ def divide_into_centers(root_path, center_count=10, num_classes=2, min_num=50, m
                 imgs.append((f, f_mask))
 
             img_paths[center_id][subset].extend(imgs)
-    print(img_paths)
     return img_paths
 
 
@@ -190,21 +189,25 @@ def create_train_test_val_imagefolders(img_paths, root, normalize, include_rnd_t
         else transforms.Compose(sufx_transf_val)
     val_transf_target = transforms.Compose([pre_transf_val] + sufx_transf_val_label) if pre_transf_val \
         else transforms.Compose(sufx_transf_val_label)
-    test_dataset = ImageFolderTrainVal(root, None, transform=val_transf, target_transform=val_transf_target,
+    val_dataset = ImageFolderTrainVal(root, None, transform=val_transf, target_transform=val_transf_target,
                                        classes=img_paths['classes'],
                                        class_to_idx=img_paths['class_to_idx'], imgs=img_paths['val'])
+    test_dataset = ImageFolderTrainVal(root, None, transform=val_transf, target_transform=val_transf_target,
+                                       classes=img_paths['classes'],
+                                       class_to_idx=img_paths['class_to_idx'], imgs=img_paths['test'])
 
     # Validation set of TinyImgnet is used for testing dataset,
     # Training data set is split into train and validation.
     dsets = {}
     dsets['train'] = train_dataset
+    dsets['val'] = val_dataset
     dsets['test'] = test_dataset
-
+    dsets['test'].transform = val_transf  # Same transform val/test
     # Split original TinyImgnet trainset into our train and val sets
-    dset_trainval = random_split(dsets['train'],
-                                 [round(len(dsets['train']) * (0.8)), round(len(dsets['train']) * (0.2))])
-    dsets['train'] = dset_trainval[0]
-    dsets['val'] = dset_trainval[1]
+    # dset_trainval = random_split(dsets['train'],
+    #                              [round(len(dsets['train']) * (0.8)), round(len(dsets['train']) * (0.2))])
+    # dsets['train'] = dset_trainval[0]
+    # dsets['val'] = dset_trainval[1]
     dsets['val'].transform = val_transf  # Same transform val/test
     print("Created Dataset:{}".format(dsets))
     return dsets
