@@ -17,7 +17,7 @@ from torch import Tensor
 from typing import List
 
 import utilities.utils as utils
-from utilities.utils import dice_coefficient
+from utilities.utils import dice_coefficient, set_lr
 
 class Weight_Regularized_SGD(optim.SGD):
     def __init__(self, params, lr=0.001, momentum=0, dampening=0,
@@ -388,20 +388,6 @@ class Objective_After_Adam(optim.Adam):
                     reg_params[p] = reg_param
                 index += 1
         return loss
-
-def set_lr(optimizer, lr, count):
-    """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
-    continue_training = True
-    if count > 10:
-        continue_training = False
-        print("training terminated")
-    if count == 5:
-        lr = lr * 0.5
-        print('lr is set to {}'.format(lr))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-    return optimizer, lr, continue_training
 
 
 def traminate_protocol(since, best_acc):

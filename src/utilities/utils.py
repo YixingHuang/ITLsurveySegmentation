@@ -38,6 +38,23 @@ def get_parsed_config():
     return config
 
 
+def set_lr(optimizer, lr, count):
+    """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
+    continue_training = True
+    if count > 50:
+        continue_training = False
+        print("training terminated")
+    if count == 10:
+        lr = lr * 0.5
+        if lr < 0.0005:
+            lr = 0.0005
+        print('lr is set to {}'.format(lr))
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
+    return optimizer, lr, continue_training
+
+
 def read_from_config(config, key_value):
     return os.path.normpath(config['DEFAULT'][key_value]).replace("'", "").replace('"', "")
 

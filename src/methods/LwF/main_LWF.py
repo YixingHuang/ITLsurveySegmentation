@@ -12,7 +12,7 @@ from methods.LwF.AlexNet_LwF import AlexNet_LwF
 import methods.Finetune.train_SGD as SGD_Training
 import utilities.utils as utils
 from methods.loss import DiceLoss
-from utilities.utils import dice_coefficient
+from utilities.utils import dice_coefficient, set_lr
 def exp_lr_scheduler(optimizer, epoch, init_lr=0.0008, lr_decay_epoch=45):
     """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
     lr = init_lr * (0.1 ** (epoch // lr_decay_epoch))
@@ -98,20 +98,6 @@ def knowledge_distillation_loss(student_output, teacher_output, temperature):
 
     # return (1 - alpha) * hard_loss + (alpha * temperature * temperature) * soft_loss
     return soft_loss
-
-def set_lr(optimizer, lr, count):
-    """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
-    continue_training = True
-    if count > 20:
-        continue_training = False
-        print("training terminated")
-    if count == 10:
-        lr = lr * 0.5
-        print('lr is set to {}'.format(lr))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-    return optimizer, lr, continue_training
 
 
 def traminate_protocol(since, best_acc):

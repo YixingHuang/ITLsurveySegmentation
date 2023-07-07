@@ -16,7 +16,7 @@ from torchvision import datasets, models, transforms
 from torch import Tensor
 from typing import List
 import utilities.utils as utils
-from utilities.utils import dice_coefficient
+from utilities.utils import dice_coefficient, set_lr
 
 class Elastic_SGD(optim.SGD):
     def __init__(self, params, lr=0.001, momentum=0, dampening=0,
@@ -538,20 +538,6 @@ def adamOriginal(
         step_size = lr / bias_correction1
         param.data.addcdiv_(exp_avg, denom, value=-step_size)
 
-
-def set_lr(optimizer, lr, count):
-    """Decay learning rate by a factor of 0.5 every lr_decay_epoch epochs."""
-    continue_training = True
-    if count >= 20:
-        continue_training = False
-        print("training terminated")
-    if count == 11:
-        lr = lr * 0.5
-        print('lr is set to {}'.format(lr))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-    return optimizer, lr, continue_training
 
 
 def traminate_protocol(since, best_acc):

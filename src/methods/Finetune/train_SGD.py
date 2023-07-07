@@ -5,30 +5,7 @@ import torch
 from torch.autograd import Variable
 
 import utilities.utils as utils
-from utilities.utils import dice_coefficient
-
-
-def set_lr(optimizer, lr, count, decay_threshold=10, early_stop_threshold=20):
-    """
-    Early stop or decay learning rate by a factor of 0.1 based on count.
-    :param lr:              Current learning rate
-    :param count:           Amount of times of not increasing accuracy.
-    """
-    continue_training = True
-
-    # Early Stopping
-    if count > early_stop_threshold:
-        continue_training = False
-        print("training terminated")
-
-    # Decay
-    if count == decay_threshold:
-        lr = lr * 0.5
-        print('lr is set to {}'.format(lr))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-    return optimizer, lr, continue_training
+from utilities.utils import dice_coefficient, set_lr
 
 
 def termination_protocol(since, best_acc):

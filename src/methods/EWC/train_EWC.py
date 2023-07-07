@@ -8,7 +8,7 @@ from torch.autograd import Variable
 from torch import Tensor
 from typing import List
 import utilities.utils as utils
-from utilities.utils import dice_coefficient
+from utilities.utils import dice_coefficient, set_lr
 
 class Weight_Regularized_SGD(optim.SGD):
     r"""Implements stochastic gradient descent with an EWC penalty on important weights for previous tasks
@@ -230,21 +230,6 @@ def adamOriginal(
 
         step_size = lr / bias_correction1
         param.data.addcdiv_(exp_avg, denom, value=-step_size)
-
-
-def set_lr(optimizer, lr, count):
-    """Decay learning rate by a factor of 0.1 every lr_decay_epoch epochs."""
-    continue_training = True
-    if count > 20:
-        continue_training = False
-        print("training terminated")
-    if count == 10:
-        lr = lr * 0.5
-        print('lr is set to {}'.format(lr))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-    return optimizer, lr, continue_training
 
 
 def traminate_protocol(since, best_acc):
