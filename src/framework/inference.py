@@ -4,7 +4,7 @@ import numpy as np
 
 from torch.autograd import Variable
 from utilities.utils import dice_coefficient
-
+from PIL import Image
 def test_model(method, model, dataset_path, target_task_head_idx, target_head=None, batch_size=200, subset='test',
                per_class_stats=True, final_layer_idx=None, task_idx=None):
     """
@@ -32,7 +32,7 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
                         for x in ['train', 'val']}
         print('no test set has been found')
         subset = 'val'
-    dset_classes = dsets['train'].classes
+    # dset_classes = dsets['train'].classes
 
     # Pass args
     holder = type("Holder", (object,), {})()
@@ -45,11 +45,12 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
     holder.task_idx = task_idx
 
     # Init stat counters
-    class_correct = list(0. for i in range(len(dset_classes)))
-    class_total = list(0. for i in range(len(dset_classes)))
+    # class_correct = list(0. for i in range(len(dset_classes)))
+    # class_total = list(0. for i in range(len(dset_classes)))
     batch_count = 0
     # Iterate data
     running_corrects = 0
+
     for data in dset_loaders[subset]:
         batch_count += 1
         images, labels = data
@@ -61,6 +62,11 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
         outputs = method.get_output(images, holder)
         preds = torch.round(outputs)
         running_corrects += dice_coefficient(preds, labels).item()
+        print(torch.sum(images), torch.sum(preds), torch.sum(labels))
+
+        saveBatch2Pngs(images.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_input')
+        saveBatch2Pngs(preds.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_pred')
+        saveBatch2Pngs(labels.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_gt')
         # _, target_head_pred = torch.max(outputs.data, 1)
         # c = (target_head_pred == labels).squeeze()
         #
@@ -78,8 +84,8 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
 
     # Final postprocessing
     # Per class ACC
-    if per_class_stats:
-        print("For all correct-head classified: NO Results for segmentation tasks")
+    # if per_class_stats:
+    #     print("For all correct-head classified: NO Results for segmentation tasks")
         # for i in range(len(dset_classes)):
         #     print('Accuracy of %5s : %2d %%' % (
         #         dset_classes[i], 100 * class_correct[i] / class_total[i]))
@@ -91,6 +97,11 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
 
     return accuracy
 
+def saveBatch2Pngs(batch, save_path, task_idx, batch_idx, suffix=''):
+    batch = batch * 255
+    for i in range(batch.shape[0]):
+        img = Image.fromarray(batch[i, 0, :, :].numpy().astype(np.uint8))
+        img.save(save_path + str(task_idx) + '_' + str(batch_idx) + '_' + str(i) + suffix + '.png')
 
 def test_task_joint_model(model_path, dataset_path, task_idx, task_lengths, batch_size=200, subset='test',
                           print_per_class_acc=True, debug=False, tasks_idxes=None, init_freeze=True):

@@ -62,8 +62,6 @@ def preprocess_val(root_path):
         utils.attempt_move(os.path.join(val_path, 'images', imagename), this_class_dir)
 
 
-
-
 def divide_into_centers(root_path, center_count=10, num_classes=2, min_num=50, max_num=200):
     """
     Divides total subset data into multi-centers (into dirs "task_x").
@@ -82,8 +80,10 @@ def divide_into_centers(root_path, center_count=10, num_classes=2, min_num=50, m
     t1ce_preffix = '_t1ce.png'
     img_paths = {t: {s: [] for s in subsets + ['classes', 'class_to_idx']} for t in range(1, center_count + 1)}
     # img_paths = {t: {s: [] for s in subsets} for t in range(1, center_count + 1)}
-    print(os.listdir(root_path))
-    folders = [f for f in os.listdir(root_path) if os.path.isdir(os.path.join(root_path, f))]
+    directories = os.listdir(root_path)
+    sorted_directories = sorted(directories)
+    print(sorted_directories)
+    folders = [f for f in sorted_directories if os.path.isdir(os.path.join(root_path, f))]
     total_folders = len(folders)
     print('total number of folders/centers is ', total_folders)
     assert center_count <= total_folders, "center_count should be smaller than {}".format(total_folders)

@@ -1099,7 +1099,7 @@ class LWF(Method):
     eval_name = name
     category = Category.DATA_BASED
     extra_hyperparams_count = 1
-    hyperparams = OrderedDict({'lambda': 10})
+    hyperparams = OrderedDict({'lambda': 1})
 
     def __init__(self, warmup_step=False):
         self.warmup_step = warmup_step
