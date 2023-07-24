@@ -212,7 +212,7 @@ def train_model_lwf(model, original_model, criterion, optimizer, lr, dset_loader
                 tasks_outputs = torch.cat((1 - outputs, outputs), dim=1) # convert to softmax HYX
                 # _, preds = torch.max(tasks_outputs[-1].data, 1)
                 preds = torch.round(outputs) # HYX
-                task_loss = criterion(tasks_outputs[-1], labels)
+                task_loss = criterion(outputs, labels)
 
                 # Compute distillation loss.
                 dist_loss = 0

@@ -31,10 +31,13 @@ exp_name_contains = None
 # INIT
 method_names = []
 method_data_entries = []
-gridsearch_name = "GliomaSWT_few1"
+gridsearch_name = "GliomaSWT_biasCoreSwapRedo1"
 #############################################
-methods = [Joint(),  FineTuning(), SI(), IsolatedTraining(), EWC(), MAS(), LWF(), IMM('mean'), IMM('mode')]
 
+# methods = [ IMM('mean'), IMM('mode')]
+methods = [Joint(),  FineTuning(), SI(), IsolatedTraining(), EWC(), MAS(), LWF(), IMM('mean'), IMM('mode')]
+# methods = [Joint(),  FineTuning(), IsolatedTraining(), LWF(), IMM('mean'), IMM('mode')]
+# methods = [Joint(),  FineTuning(), IsolatedTraining()]
 # methods = [IsolatedTraining(),]
 
 for method in methods:

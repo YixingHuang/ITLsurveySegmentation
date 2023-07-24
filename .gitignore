@@ -15,12 +15,4 @@ src/utilities/imgs/
 src/framework/__pycache__/eval.cpython-37.pyc
 src/runTinyScriptsWin/
 src/runTinyScripts/
-<<<<<<< Updated upstream
 src/runRetinaScriptsWin/
-=======
-src/runRetinaScriptsWin/
-src/runTinyScriptsWin/runCMDs_10Classes.py
-src/runTinyScriptsWin/runCMDs_10Classes.py
->>>>>>> Stashed changes
-src/runTinyScriptsWinPaper/AdamSWT_N5.py
-src/utilities/imgs/

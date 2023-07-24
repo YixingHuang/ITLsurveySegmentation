@@ -31,11 +31,12 @@ exp_name_contains = None
 # INIT
 method_names = []
 method_data_entries = []
-gridsearch_name = "GliomaCWT16"
+gridsearch_name = "GliomaCWTSwap16"
 #############################################
-methods = [FineTuning(), SI(),  EWC()]
+# methods = [LWF()]
+# methods = [FineTuning(), SI(),  EWC(), MAS(), LWF()]
 # methods = [Joint(),  FineTuning(), SI(), IsolatedTraining(), EWC()]
-# methods = [Joint(),  FineTuning(), SI(), IsolatedTraining(), EWC(), MAS(), LWF(), IMM('mean'), IMM('mode')]
+methods = [FineTuning(), SI(),  EWC(), MAS(), LWF(), IMM('mean'), IMM('mode')]
 # methods = [Joint(),  FineTuning(), IsolatedTraining(), LWF(), IMM('mean'), IMM('mode')]
 # methods = [Joint(),  FineTuning(), IsolatedTraining()]
 # methods = [IsolatedTraining(),]

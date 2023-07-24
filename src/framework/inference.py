@@ -1,3 +1,4 @@
+import os.path
 import pdb
 import torch
 import numpy as np
@@ -25,10 +26,10 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
     dsets = torch.load(dataset_path)
 
     try:
-        dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size, shuffle=True, num_workers=4, drop_last=False)
+        dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size, shuffle=False, num_workers=4, drop_last=False)
                         for x in ['train', 'val', 'test']}
     except:
-        dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size, shuffle=True, num_workers=4, drop_last=False)
+        dset_loaders = {x: torch.utils.data.DataLoader(dsets[x], batch_size, shuffle=False, num_workers=4, drop_last=False)
                         for x in ['train', 'val']}
         print('no test set has been found')
         subset = 'val'
@@ -53,7 +54,7 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
 
     for data in dset_loaders[subset]:
         batch_count += 1
-        images, labels = data
+        images, labels, names = data
         images = images.cuda()
         # images = images.squeeze() #cause problems when certain batchs have only one image
         labels = labels.cuda()
@@ -64,9 +65,9 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
         running_corrects += dice_coefficient(preds, labels).item()
         print(torch.sum(images), torch.sum(preds), torch.sum(labels))
 
-        saveBatch2Pngs(images.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_input')
-        saveBatch2Pngs(preds.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_pred')
-        saveBatch2Pngs(labels.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_gt')
+        saveBatch2Pngs(images.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_input', original_names=names)
+        saveBatch2Pngs(preds.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_pred', original_names=names)
+        saveBatch2Pngs(labels.data.cpu(), 'C:/MachineLearning/CLsurveyMCunet/src/images/', task_idx, batch_count, suffix='_gt', original_names=names)
         # _, target_head_pred = torch.max(outputs.data, 1)
         # c = (target_head_pred == labels).squeeze()
         #
@@ -97,11 +98,13 @@ def test_model(method, model, dataset_path, target_task_head_idx, target_head=No
 
     return accuracy
 
-def saveBatch2Pngs(batch, save_path, task_idx, batch_idx, suffix=''):
+def saveBatch2Pngs(batch, save_path,  task_idx, batch_idx, suffix='', original_names=None):
     batch = batch * 255
     for i in range(batch.shape[0]):
         img = Image.fromarray(batch[i, 0, :, :].numpy().astype(np.uint8))
-        img.save(save_path + str(task_idx) + '_' + str(batch_idx) + '_' + str(i) + suffix + '.png')
+        # img.save(save_path + str(task_idx) + '_' + str(batch_idx) + '_' + str(i) + suffix + '.png')
+        img.save(save_path + str(task_idx + 1) + '_' + os.path.basename(original_names[i])[0:-5] + '_' + suffix + '.png')
+
 
 def test_task_joint_model(model_path, dataset_path, task_idx, task_lengths, batch_size=200, subset='test',
                           print_per_class_acc=True, debug=False, tasks_idxes=None, init_freeze=True):

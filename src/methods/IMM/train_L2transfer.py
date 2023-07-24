@@ -410,6 +410,7 @@ def train_model(model, criterion, optimizer, lr, dset_loaders, dset_sizes, use_g
                     del inputs
                     del loss
                     del preds
+                    print('saving best model')
                     best_acc = epoch_acc
                     torch.save(model, os.path.join(exp_dir, 'best_model.pth.tar'))
 

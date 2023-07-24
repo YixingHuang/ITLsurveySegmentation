@@ -132,7 +132,7 @@ class ExperimentDataEntry(object):
         elif method.eval_name == IMM('mean').eval_name:
             return cmap(step * 11)
         elif method.eval_name == IMM('mode').eval_name:
-            return cmap(step * 10)
+            return cmap(step * 4)
 
         # Mask
         # elif method.name == PackNet.name:
@@ -511,6 +511,7 @@ def collect_eval_metrics_icl(exp_data_entry, eval_results, dataset_index, taskco
     total_acc_length = taskcount * n_iters - dataset_index if multi_head else taskcount * n_iters
     for result_key in eval_results:
         res = eval_results[result_key][:total_acc_length]
+        res = [x * 100 for x in res]
         exp_data_entry.seq_acc[dataset_index] = res
         exp_data_entry.final_model_seq_test_acc.append(res[-1])
         exp_data_entry.avg_acc += exp_data_entry.final_model_seq_test_acc[-1]
@@ -708,7 +709,7 @@ def plot_multigraphs_icl(experiment_data_entries, save_img_path, max_task_count,
         forgetting_curves = []
         for idx, experiment_data_entry in enumerate(experiment_data_entries):
             try:
-                acc_curve = experiment_data_entry.seq_acc[dataset_index]
+                acc_curve = experiment_data_entry.seq_acc[dataset_index] # HYX: acc is in [0, 1]
                 acc_curves.append(acc_curve)
 
                 forgetting_curve = experiment_data_entry.seq_forgetting[dataset_index]
@@ -753,7 +754,7 @@ def plot_multigraphs_icl(experiment_data_entries, save_img_path, max_task_count,
         try:
             plot.plot_line_horizontal_sequence_icl(acc_plots, colors, linestyles, labels, markers, markersizes,
                                                legend=legend_location,
-                                               ylabel="Accuracy %",
+                                               ylabel="Dice coefficient %",
                                                save_img_path=save_img_path,
                                                single_dot_idxes=single_dot_idxes,
                                                ylim=ylim,

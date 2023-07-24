@@ -217,7 +217,7 @@ class DatasetPairedFolder(DatasetFolder):
         # if self.target_transform is not None:
         #     target = self.target_transform(target)
 
-        return sample, label # only one channel is used
+        return sample, label, path # only one channel is used
 
     def __len__(self) -> int:
         return len(self.samples)
