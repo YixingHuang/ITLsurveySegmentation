@@ -8,6 +8,11 @@ The [first repository](https://github.com/YixingHuang/ITLsurvey) (classification
 For segmentation tasks, due to the massive changes of the framework including the network architecture, evaluation metrics, and training losses, we use this separate repository for such segmentation tasks.
 
 
+Incremental Transfer Learning shares trained models in a peer-to-peer federated learning manner and uses continual learning to avoid the forgetting problem caused by domain gaps. It is a more practical choice for multicenter collaboration compared with center-to-peer federated learning, because of the low communication cost, low financial cost (no need for central server), low technical difficulty and easy for management.
+
+The framework of incremental transfer learning is illustrated in the following figure:
+
+![Incremental Transfer Learning](https://github.com/YixingHuang/ITLsurvey/blob/main/image857-8.png "Incremental Transfer Learning")
 
 
 
