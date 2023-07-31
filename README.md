@@ -14,6 +14,11 @@ The framework of incremental transfer learning is illustrated in the following f
 
 ![Incremental Transfer Learning](https://github.com/YixingHuang/ITLsurvey/blob/main/image857-8.png "Incremental Transfer Learning")
 
+## Datasets
+### Three datasets are used for this survey.
+- The Tiny ImageNet dataset: this is available from the [CS231n course source](http://cs231n.stanford.edu/tiny-imagenet-200.zip)
+- The retinal image dataset: this is from two data sources: the [retinal fundus multi-disease image dataset (RFMiD)](https://www.kaggle.com/datasets/andrewmvd/retinal-disease-classification) and the [Kaggle diabetic retinopathy detection dataset (KDRDD)](https://www.kaggle.com/competitions/diabetic-retinopathy-detection/data).
+- The glioma dataset: This is from three data sources: the [BraTS 2020 dataset](https://www.med.upenn.edu/cbica/brats2020/data.html), the [UCSF-PDGM dataset](https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=119705830), and the [UPenn-GBM dataset](https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=70225642).
 
 
 ## Acknolowdgement
